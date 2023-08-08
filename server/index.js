@@ -39,23 +39,26 @@ app.post("/school", (req, res) => {
     }
 
     const headers = { "Content-Type": "application/json" }
-    axios.get(`${apiConfig.url}?serviceKey=${apiConfig.key}&type=json&schoolNm=${school}`, {headers: headers})
-    .then((data) => {
-        if (data.body) {
+    axios.get(`${apiConfig.url}?serviceKey=${apiConfig.key}&type=json&pageNo=1&numOfRows=100&schoolNm=${school}`, {headers: headers})
+    .then((apiRes) => apiRes.data)
+    .then((apiRes) => {
+        apiRes = apiRes.response;
+        console.log(apiRes);
+        if (apiRes.body) {
             res.json({
                 result: true,
-                data: data.body
+                data: apiRes.body
             });
         } else {
             res.json({
                 result: false,
-                reason: `fetch 실패 - ${data.headers.resultMsg}`
+                reason: `fetch 실패 - ${apiRes.header.resultMsg}`
             });
         }
     }).catch((err) => {
         res.json({
             result: false,
-            reason: `fetch 실패 - ${err}`
+            reason: `fetch 오류 - ${err}`
         });
     })
 })

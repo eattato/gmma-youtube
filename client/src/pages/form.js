@@ -54,7 +54,7 @@ function InputList({ label, placeholder, type, value, error, list, onChange, onC
 }
 
 function Form() {
-    const [grade, setGrade, name, setName, school, setSchool] = useContext(FormContext);
+    const {grade, setGrade, name, setName, school, setSchool, setFormFilled} = useContext(FormContext);
     const [gradeError, setGradeError] = useState(null);
     const [nameError, setNameError] = useState(null);
 
@@ -65,7 +65,9 @@ function Form() {
 
     const changeGrade = (value) => {
         setGrade(value);
-        if (value.length != 5) {
+        if (value.length == 0) {
+            setGradeError("학번을 입력하세요.");
+        } else if (value.length != 5) {
             setGradeError("학번은 5글자 입니다.");
         } else if (isNaN(value)) {
             setGradeError("학번은 숫자로만 구성될 수 있습니다.");
@@ -74,7 +76,9 @@ function Form() {
 
     const changeName = (value) => {
         setName(value);
-        if (name.length > 20) {
+        if (value.length == 0) {
+            setNameError("이름을 입력하세요.");
+        } else if (value.length > 20) {
             setNameError("이름은 최대 20글자 입니다.");
         } else {
             setNameError(null);
@@ -103,7 +107,7 @@ function Form() {
         .then((res) => res.json())
         .then((res) => {
             if (!res.result) {
-                setSchoolList([{ label: `로드 실패 - ${res.reason}`, click: null }]);
+                setSchoolList([{ label: `로드 실패 : ${res.reason}`, click: null }]);
                 return;
             }
 
@@ -126,12 +130,21 @@ function Form() {
         });
     }
 
+    const checkSchool = () => {
+        if (!schoolLock) {
+            setSchoolError("학교를 선택해주세요.");
+        } else {
+            setSchoolError(null);
+        }
+    }
+
     const submit = () => {
         changeGrade(grade);
         changeName(name);
+        checkSchool();
 
-        if (!gradeError && !nameError) {
-            console.log("submit");
+        if (!gradeError && !nameError && !schoolError) {
+            setFormFilled(true);
         }
     }
 
