@@ -2,7 +2,7 @@ import "../pages/formBase.css"
 import "../pages/watch.css"
 import React, { useState, useContext, useEffect } from 'react';
 import FormContext from '../modules/FormContext';
-import CryptoJS from 'crypto-js';
+import * as CryptoJS from 'crypto-js';
 
 function VideoPlayer({ embedId }) {
    return (
@@ -33,7 +33,7 @@ function Watch() {
                 grade: grade,
                 name: name,
                 school: school,
-                secret: CryptoJS.AES(secretData, key).toString()
+                secret: CryptoJS.AES.encrypt(secretData, key).toString()
             })
         });
     }

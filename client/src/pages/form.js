@@ -121,7 +121,7 @@ function Form() {
         .then((res) => {
             if (!res.result) {
                 // setSchoolList([{ label: `로드 실패 : ${res.reason}`, click: null }]);
-                setSchoolList([{ label: "몰?루겠고등학교", click: selectSchool("몰?루겠고등학교") }]);
+                setSchoolList([{ label: "로드 실패 방지용 임시학교", click: selectSchool("로드 실패 방지용 임시학교") }]);
                 return;
             }
 

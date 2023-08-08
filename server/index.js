@@ -4,6 +4,7 @@ const mysql = require("mysql2");
 const path = require("path");
 const fs = require("fs");
 const axios = require("axios");
+const CryptoJS = require("crypto-js");
 
 const app = express();
 app.use(bodyParser.json())
@@ -69,7 +70,7 @@ app.post("/done", (req, res) => {
     let school = req.body.school;
     let secret = req.body.secret;
 
-    if (typeof grade != "number" || typeof name != "string" || typeof school != "string" || typeof secret != "string") {
+    if (typeof grade != "string" || typeof name != "string" || typeof school != "string" || typeof secret != "string") {
         res.json({
             result: false,
             reason: "옳지 않은 형식입니다!"
@@ -77,21 +78,33 @@ app.post("/done", (req, res) => {
         return;
     }
 
-    if (`${grade}`.length != 5 || !(name.length > 0 && name.length <= 20) || school.length == 0 || secret.length == 0) {
+    if (grade.length != 5 || isNaN(grade) || !(name.length > 0 && name.length <= 20) || school.length == 0 || secret.length == 0) {
         res.json({
             result: false,
             reason: "옳지 않은 형식입니다!"
         });
         return;
     }
+    grade = Number(grade);
 
     const key = "gmma";
     secret = CryptoJS.AES.decrypt(secret, key);
-    if (secret <= 28000) { // 30초 딱 맞추면 오차있을 수 있어서 2초 여유 줌
+    try {
+        secret = secret.toString(CryptoJS.enc.Utf8);
+        if (isNaN(secret)) new Error("숫자가 아닙니다!");
+    } catch (e) {
         res.json({
             result: false,
-            reason: "영상을 30초 이상 시청하지 않았습니다!"
-        });
+            reason: "잘못된 코드입니다."
+        })
+        return;
+    }
+
+    if (secret <= 28000) {
+        res.json({
+            result: false,
+            reason: "영상을 30초 이상 시청하지 않았습니다."
+        })
         return;
     }
 
