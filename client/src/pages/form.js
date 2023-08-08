@@ -1,3 +1,4 @@
+import "../pages/formBase.css"
 import "../pages/form.css"
 import React, { useState, createContext, useContext } from 'react';
 import FormContext from "../modules/FormContext"
@@ -54,7 +55,7 @@ function InputList({ label, placeholder, type, value, error, list, onChange, onC
 }
 
 function Form() {
-    const {grade, setGrade, name, setName, school, setSchool, setFormFilled} = useContext(FormContext);
+    const {grade, setGrade, name, setName, school, setSchool, setFormFilled, setStartTime} = useContext(FormContext);
     const [gradeError, setGradeError] = useState(null);
     const [nameError, setNameError] = useState(null);
 
@@ -71,7 +72,10 @@ function Form() {
             setGradeError("학번은 5글자 입니다.");
         } else if (isNaN(value)) {
             setGradeError("학번은 숫자로만 구성될 수 있습니다.");
-        } else setGradeError(null);
+        } else {
+            setGradeError(null);
+            return true;
+        }
     }
 
     const changeName = (value) => {
@@ -82,6 +86,7 @@ function Form() {
             setNameError("이름은 최대 20글자 입니다.");
         } else {
             setNameError(null);
+            return true;
         }
     }
 
@@ -89,6 +94,14 @@ function Form() {
         setSchool(value);
         setSchoolLock(false);
         setSchoolList([]);
+    }
+
+    const selectSchool = (li) => {
+        return () => {
+            setSchoolList([]);
+            setSchool(li);
+            setSchoolLock(true);
+        }
     }
 
     const searchSchool = () => {
@@ -107,7 +120,8 @@ function Form() {
         .then((res) => res.json())
         .then((res) => {
             if (!res.result) {
-                setSchoolList([{ label: `로드 실패 : ${res.reason}`, click: null }]);
+                // setSchoolList([{ label: `로드 실패 : ${res.reason}`, click: null }]);
+                setSchoolList([{ label: "몰?루겠고등학교", click: selectSchool("몰?루겠고등학교") }]);
                 return;
             }
 
@@ -118,11 +132,7 @@ function Form() {
 
             setSchoolList(res.data.map((li) => ({
                 label: li,
-                click: () => {
-                    setSchoolList([]);
-                    setSchool(li);
-                    setSchoolLock(true);
-                }
+                click: selectSchool(li)
             })));
         })
         .finally(() => {
@@ -135,22 +145,25 @@ function Form() {
             setSchoolError("학교를 선택해주세요.");
         } else {
             setSchoolError(null);
+            return true;
         }
     }
 
     const submit = () => {
-        changeGrade(grade);
-        changeName(name);
-        checkSchool();
+        let gradeOk = changeGrade(grade);
+        let nameOk = changeName(name);
+        let schoolOk = checkSchool();
 
-        if (!gradeError && !nameError && !schoolError) {
+        //if (!gradeError && !nameError && !schoolError) {
+        if (gradeOk && nameOk && schoolOk) {
             setFormFilled(true);
+            setStartTime(Date.now());
         }
     }
 
     return (
         <div className='form_frame'>
-            <div className='form_title'>창의경영고 1분 1초 설문</div>
+            <div className='form_title'>창의경영고 '1분 1초' 설문</div>
             <p className='form_desc'>학급 정보를 입력한 뒤, 창의경영고 일학습병행 홍보 영상 '1분 1초'를 30초 이상 시청해주세요.</p>
             <form>
                 <InputLine label="학번" placeholder="학번을 입력하세요." type="number" value={grade} error={gradeError} onChange={changeGrade} />

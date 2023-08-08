@@ -1,0 +1,12 @@
+iframe {
+    margin: auto;
+    margin-top: 50px;
+    pointer-events: none;
+    user-select: none;
+}
+
+.form_timer {
+    width: 100%;
+    margin-top: 10px;
+    text-align: center;
+}

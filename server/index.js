@@ -63,6 +63,43 @@ app.post("/school", (req, res) => {
     })
 })
 
+app.post("/done", (req, res) => {
+    let grade = req.body.grade;
+    let name = req.body.name;
+    let school = req.body.school;
+    let secret = req.body.secret;
+
+    if (typeof grade != "number" || typeof name != "string" || typeof school != "string" || typeof secret != "string") {
+        res.json({
+            result: false,
+            reason: "옳지 않은 형식입니다!"
+        });
+        return;
+    }
+
+    if (`${grade}`.length != 5 || !(name.length > 0 && name.length <= 20) || school.length == 0 || secret.length == 0) {
+        res.json({
+            result: false,
+            reason: "옳지 않은 형식입니다!"
+        });
+        return;
+    }
+
+    const key = "gmma";
+    secret = CryptoJS.AES.decrypt(secret, key);
+    if (secret <= 28000) { // 30초 딱 맞추면 오차있을 수 있어서 2초 여유 줌
+        res.json({
+            result: false,
+            reason: "영상을 30초 이상 시청하지 않았습니다!"
+        });
+        return;
+    }
+
+    // DB에 저장하는 코드 추가하기
+    console.log(`${school}의 ${grade} ${name}님이 영상 시청을 완료했습니다.`);
+    res.json({ result: true });
+})
+
 app.use(express.static(client));
 
 app.listen(8888, () => {
